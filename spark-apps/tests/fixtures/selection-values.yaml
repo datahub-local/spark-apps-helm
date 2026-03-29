@@ -1,0 +1,49 @@
+spark:
+  pullSecrets:
+    - regcred
+
+serviceAccount:
+  create: false
+  name: chart-sa
+
+sharedConfigMaps:
+  - id: common-env
+    name: common-env
+    envFrom: true
+    data:
+      APP_ENV: dev
+  - id: mounted-config
+    name: mounted-config
+    mountPath: /opt/spark/conf/shared
+    data:
+      app.conf: test=true
+
+sharedSecrets:
+  - id: api-secret
+    name: api-secret
+    envFrom: true
+    stringData:
+      API_TOKEN: token
+  - id: tls-secret
+    name: tls-secret
+    mountPath: /etc/tls
+    stringData:
+      ca.crt: data
+
+sparkApplications:
+  - name: selective-app
+    type: Python
+    mode: cluster
+    mainApplicationFile: local:///opt/spark/app.py
+    sharedConfigMapRefs:
+      - common-env
+    sharedSecretRefs:
+      - api-secret
+    driver:
+      cores: 1
+      memory: 512m
+      coreLimit: 1200m
+    executor:
+      instances: 1
+      cores: 1
+      memory: 512m

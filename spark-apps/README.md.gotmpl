@@ -1,0 +1,46 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ .Description }}
+
+{{ template "chart.homepageLine" . }}
+
+## Usage
+
+Install the Spark Operator before installing this chart. The local CI helpers do this automatically by deploying `spark-operator` into the k3d cluster.
+
+```console
+helm upgrade --install spark-apps ./spark-apps \
+  --namespace spark-apps \
+  --create-namespace \
+  --values spark-apps/examples/values-example.yaml
+```
+
+When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
+
+## Examples
+
+* `examples/values-example.yaml` shows a minimal chart install with packaged scripts and shared runtime configuration.
+* `examples/values-production.yaml` extends the base example with a chart-managed service account and production-oriented shared resources.
+* `examples/argocd-application.yaml` shows how to reference the chart from Argo CD.
+
+## Testing
+
+```console
+devbox run test_unit
+devbox run lint
+devbox run start_k8s
+devbox run test_install
+devbox run test_delete
+devbox run stop_k8s
+```
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

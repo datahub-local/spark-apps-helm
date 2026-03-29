@@ -1,0 +1,22 @@
+helmDefaults:
+  wait: true
+  timeout: 900
+
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+  - name: nfs-subdir-external-provisioner
+    url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+  - name: spark-operator
+    url: https://kubeflow.github.io/spark-operator
+
+releases:
+  - name: spark-operator
+    namespace: spark-operator
+    createNamespace: true
+    chart: spark-operator/spark-operator
+    version: 2.5.0
+    values:
+      - spark:
+          jobNamespaces:
+            - spark-apps

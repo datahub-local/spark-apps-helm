@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits"
+  ],
+  "schedule": [
+    "* * * * 6"
+  ],
+  "automerge": false,
+  "prCreation": "immediate",
+  "automergeStrategy": "squash",
+  "forkProcessing": "enabled",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)spark-apps/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "appVersion: \"(?<currentValue>.*?)\""
+      ],
+      "depNameTemplate": "apache/spark",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)spark-apps/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "- name: (?<depName>.*?)\\s+version: \"(?<currentValue>.*?)\""
+      ],
+      "datasourceTemplate": "helm"
+    }
+  ],
+  "includePaths": [
+    "spark-apps/**"
+  ]
+}

@@ -1,0 +1,52 @@
+# Default values for spark-apps.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Spark Operator dependency configuration
+sparkOperator:
+  # -- Enable/disable spark-operator as a dependency
+  enabled: false
+
+spark:
+  # -- Shared Spark version applied to every SparkApplication. Defaults to the chart appVersion when empty.
+  sparkVersion: ""
+  # -- Base image repository for Spark drivers and executors.
+  image: apache/spark
+  # -- Shared Spark image tag. Defaults to spark.sparkVersion and then chart appVersion when empty.
+  tag: ""
+  # -- Image pull secrets added to every SparkApplication spec.
+  pullSecrets: []
+  # -- Shared image pull policy for Spark drivers and executors.
+  pullPolicy: IfNotPresent
+# -- Additional labels to add to all resources created by this chart.
+commonLabels: {}
+# -- Additional annotations to add to all resources created by this chart.
+commonAnnotations: {}
+
+serviceAccount:
+  # -- Create a chart-managed service account for Spark drivers.
+  create: false
+  # -- Name of the service account to use for Spark drivers.
+  name: spark
+  # -- Annotations to add to the chart-managed service account.
+  annotations: {}
+  # -- Labels to add to the chart-managed service account.
+  labels: {}
+
+scripts:
+  # -- Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods.
+  enabled: false
+  # -- Existing ConfigMap name to use for packaged scripts. Leave empty to use the chart-generated name.
+  configMapName: ""
+  # -- Mount path for the bundled scripts inside Spark pods.
+  mountPath: /opt/spark/scripts
+  # -- File mode used for the scripts ConfigMap volume.
+  defaultMode: 493
+
+# -- Shared ConfigMaps rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes.
+sharedConfigMaps: []
+# -- Shared Secrets rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes.
+sharedSecrets: []
+
+# -- List of SparkApplication resources to render. Each entry should include the SparkApplication spec plus driver and executor settings.
+sparkApplications: []
