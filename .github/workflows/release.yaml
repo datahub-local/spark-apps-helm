@@ -1,0 +1,187 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - spark-apps/Chart.yaml
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Select the semantic version bump to release
+        required: true
+        type: choice
+        options:
+          - hotfix
+          - minor
+          - major
+
+permissions: {}
+jobs:
+  prepare-manual-release:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Ensure workflow runs from the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]; then
+            echo "Manual releases can only run from ${DEFAULT_BRANCH}"
+            exit 1
+          fi
+
+      - name: Bump chart version
+        id: bump
+        env:
+          RELEASE_TYPE: ${{ inputs.release_type }}
+        run: |
+          chart_file="spark-apps/Chart.yaml"
+          chart_readme="spark-apps/README.md"
+          current_version="$(awk -F '"' '/^version:/ { print $2; exit }' "${chart_file}")"
+
+          IFS=. read -r major minor patch <<EOF
+          ${current_version}
+          EOF
+
+          case "${RELEASE_TYPE}" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            hotfix)
+              patch=$((patch + 1))
+              ;;
+            *)
+              echo "Unsupported release type: ${RELEASE_TYPE}"
+              exit 1
+              ;;
+          esac
+
+          new_version="${major}.${minor}.${patch}"
+          branch_name="chore/release-spark-apps-chart-${new_version}"
+          commit_message="chore(release): bump spark-apps chart to ${new_version}"
+
+          sed -i "s/^version: \"${current_version}\"$/version: \"${new_version}\"/" "${chart_file}"
+          sed -i "s/Version: ${current_version}/Version: ${new_version}/" "${chart_readme}"
+          sed -i "s|/badge/Version-${current_version}-informational|/badge/Version-${new_version}-informational|" "${chart_readme}"
+
+          echo "new_version=${new_version}" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
+          echo "commit_message=${commit_message}" >> "$GITHUB_OUTPUT"
+
+      - name: Create release pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ github.event.repository.default_branch }}
+          branch: ${{ steps.bump.outputs.branch_name }}
+          delete-branch: true
+          commit-message: ${{ steps.bump.outputs.commit_message }}
+          title: ${{ steps.bump.outputs.commit_message }}
+          body: |
+            ## Summary
+
+            - bump spark-apps chart version to `${{ steps.bump.outputs.new_version }}`
+            - update chart metadata for the selected `${{ inputs.release_type }}` release
+          add-paths: |
+            spark-apps/Chart.yaml
+            spark-apps/README.md
+
+  release:
+    if: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: write # to push chart release and create a release (helm/chart-releaser-action)
+      packages: write # needed for ghcr access
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3.5
+        with:
+          version: v3.12.0
+
+      - name: Register chart dependency repositories
+        run: |
+          helm repo add spark-operator https://kubeflow.github.io/spark-operator
+          helm repo update
+
+      - name: Update Helm dependencies
+        run: |
+          helm dependency update ./spark-apps
+
+      - name: Create gh-pages branch if it doesn't exist
+        continue-on-error: true
+        run: |
+          git checkout -b gh-pages || exit 1
+          git rebase main
+          git push origin gh-pages
+
+          git checkout main
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ./
+          config: ./.github/ci/cr.yaml
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_SKIP_EXISTING: "true"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push charts to GHCR
+        run: |
+          shopt -s nullglob
+          for pkg in .cr-release-packages/*.tgz; do
+            if [ -z "${pkg:-}" ]; then
+              break
+            fi
+
+            chart_name="$(helm show chart "${pkg}" | awk -F': ' '$1=="name" {print $2; exit}')"
+            chart_version="$(helm show chart "${pkg}" | awk -F': ' '$1=="version" {print $2; exit}')"
+            chart_ref="oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/spark-apps/${chart_name}"
+
+            if helm show chart "${chart_ref}" --version "${chart_version}" >/dev/null 2>&1; then
+              echo "Skipping ${chart_name}:${chart_version}; already exists in GHCR"
+              continue
+            fi
+
+            helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/spark-apps"
+          done

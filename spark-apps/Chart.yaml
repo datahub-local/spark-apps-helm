@@ -1,0 +1,18 @@
+apiVersion: v2
+name: spark-apps
+description: Helm chart for deploying SparkApplications using the Spark Operator
+home: https://spark.apache.org/
+sources:
+  - https://spark.apache.org/
+  - https://github.com/datahub-local/spark-apps-helm/tree/main/spark-apps
+maintainers:
+  - name: alvsanand
+type: application
+version: 0.1.0
+appVersion: "4.1.1"
+dependencies:
+  - name: spark-operator
+    version: "2.5.0"
+    repository: "https://kubeflow.github.io/spark-operator"
+    alias: sparkOperator
+    condition: sparkOperator.enabled

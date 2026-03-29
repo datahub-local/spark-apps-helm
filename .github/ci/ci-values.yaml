@@ -1,0 +1,47 @@
+commonLabels:
+  app.kubernetes.io/part-of: spark-platform
+
+serviceAccount:
+  create: true
+  name: spark
+
+scripts:
+  enabled: true
+
+sharedConfigMaps:
+  - id: runtime-env
+    name: spark-runtime-env
+    envFrom: true
+    data:
+      APP_ENV: ci
+      LOG_LEVEL: INFO
+
+sharedSecrets:
+  - id: warehouse-creds
+    name: spark-warehouse-creds
+    envFrom: true
+    stringData:
+      WAREHOUSE_TOKEN: ci-token
+
+sparkApplications:
+  - name: smoke-test
+    type: Python
+    mode: cluster
+    mainApplicationFile: local:///opt/spark/scripts/example_job.py
+    arguments:
+      - "--message"
+      - "hello from ci"
+    restartPolicy:
+      type: Never
+    sharedConfigMapRefs:
+      - runtime-env
+    sharedSecretRefs:
+      - warehouse-creds
+    driver:
+      cores: 1
+      coreLimit: 1200m
+      memory: 512m
+    executor:
+      instances: 1
+      cores: 1
+      memory: 512m
