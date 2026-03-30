@@ -3,6 +3,8 @@
 # Declare variables to be passed into your templates.
 
 # -- Spark Operator dependency configuration
+# -- All values under sparkOperator are passed to the spark-operator Helm chart dependency.
+# -- Configure the operator by adding values following the spark-operator chart's values.yaml structure.
 sparkOperator:
   # -- Enable/disable spark-operator as a dependency
   enabled: false

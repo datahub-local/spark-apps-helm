@@ -61,7 +61,7 @@ jobs:
         uses: azure/setup-helm@v4.1.0
 
       - name: Install helm-unittest plugin
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest --verify=false
 
       - name: Run Unit Tests
         run: helm unittest spark-apps
