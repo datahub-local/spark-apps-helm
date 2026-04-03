@@ -14,7 +14,10 @@
       "test_install": "helm upgrade --install --create-namespace --namespace spark-apps --values .github/ci/ci-values.yaml spark-apps spark-apps",
       "test_delete": "kubectl delete ns spark-apps",
       "test_unit": "rm -rf \"$HOME/.local/share/helm/plugins/helm-unittest\" \"$HOME/.local/share/helm/plugins/helm-unittest.git\" && helm plugin install https://github.com/helm-unittest/helm-unittest.git >/dev/null 2>&1 && helm unittest spark-apps",
-      "lint": "ct lint --chart-dirs=. --charts=spark-apps --validate-maintainers=false",
+      "init_charts": [
+        "./.github/ci/init_charts.sh"
+      ],
+      "lint": "extra_args=\"\"; if [[ \"${CACHE_HIT:-false}\" == \"true\" ]]; then extra_args=\"--skip-helm-dependencies\"; fi; ct lint --chart-dirs=. --charts=spark-apps --validate-maintainers=false ${extra_args}",
       "test_renovate": "LOG_LEVEL=debug renovate --platform=local --dry-run=full"
     }
   }

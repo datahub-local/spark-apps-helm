@@ -54,11 +54,21 @@ jobs:
         run: |
           chart_file="spark-apps/Chart.yaml"
           chart_readme="spark-apps/README.md"
-          current_version="$(awk -F '"' '/^version:/ { print $2; exit }' "${chart_file}")"
+          current_version="$(awk -F ': ' '/^version:/ { gsub(/"/, "", $2); print $2; exit }' "${chart_file}")"
+
+          if [ -z "${current_version}" ]; then
+            echo "Failed to determine current chart version from ${chart_file}"
+            exit 1
+          fi
 
           IFS=. read -r major minor patch <<EOF
           ${current_version}
           EOF
+
+          if [ -z "${major:-}" ] || [ -z "${minor:-}" ] || [ -z "${patch:-}" ]; then
+            echo "Invalid semantic version '${current_version}' in ${chart_file}"
+            exit 1
+          fi
 
           case "${RELEASE_TYPE}" in
             major)
@@ -83,7 +93,7 @@ jobs:
           branch_name="chore/release-spark-apps-chart-${new_version}"
           commit_message="chore(release): bump spark-apps chart to ${new_version}"
 
-          sed -i "s/^version: \"${current_version}\"$/version: \"${new_version}\"/" "${chart_file}"
+          sed -Ei "s/^version: *\"?${current_version}\"?$/version: ${new_version}/" "${chart_file}"
           sed -i "s/Version: ${current_version}/Version: ${new_version}/" "${chart_readme}"
           sed -i "s|/badge/Version-${current_version}-informational|/badge/Version-${new_version}-informational|" "${chart_readme}"
 
@@ -132,14 +142,8 @@ jobs:
         with:
           version: v3.12.0
 
-      - name: Register chart dependency repositories
-        run: |
-          helm repo add spark-operator https://kubeflow.github.io/spark-operator
-          helm repo update
-
-      - name: Update Helm dependencies
-        run: |
-          helm dependency update ./spark-apps
+      - name: Initialize chart dependencies
+        run: ./.github/ci/init_charts.sh
 
       - name: Create gh-pages branch if it doesn't exist
         continue-on-error: true

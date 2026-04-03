@@ -14,16 +14,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4.1.0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5.1.0
+      - name: Install Devbox
+        uses: jetify-com/devbox-install-action@v0.15.0
         with:
-          python-version: 3.13
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.7.0
+          enable-cache: true
 
       - name: Fetch cached dependencies charts
         id: cache-charts
@@ -35,16 +29,7 @@ jobs:
       - name: Run chart-testing (lint)
         env:
           CACHE_HIT: ${{ steps.cache-charts.outputs.cache-hit == 'true' }}
-        run: |
-          extraArgs=""
-          if [[ "$CACHE_HIT" == "true" ]] ; then
-            extraArgs="--skip-helm-dependencies"
-          fi
-          ct lint \
-            --chart-dirs=. \
-            --charts=spark-apps \
-            --validate-maintainers=false \
-            $extraArgs
+        run: devbox run lint
 
       - name: Save dependencies charts in the cache
         if: ${{ steps.cache-charts.outputs.cache-hit != 'true' }}
@@ -61,14 +46,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4.1.0
-
-      - name: Install helm-unittest plugin
-        run: helm plugin install https://github.com/helm-unittest/helm-unittest --verify=false
+      - name: Install Devbox
+        uses: jetify-com/devbox-install-action@v0.15.0
+        with:
+          enable-cache: true
 
       - name: Run Unit Tests
-        run: helm unittest spark-apps
+        run: devbox run test_unit
 
   build:
     runs-on: ubuntu-latest
@@ -79,8 +63,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4.1.0
+      - name: Install Devbox
+        uses: jetify-com/devbox-install-action@v0.15.0
+        with:
+          enable-cache: true
 
       - name: Fetch cached dependencies charts
         id: cache-charts
@@ -91,9 +77,7 @@ jobs:
 
       - name: Helm Dependency update
         if: ${{ steps.cache-charts.outputs.cache-hit != 'true' }}
-        run: |
-          helm repo add spark-operator https://kubeflow.github.io/spark-operator
-          helm dependency update spark-apps/ --debug
+        run: devbox run init_charts
 
       - name: Helm Template
         run: helm template spark-apps spark-apps/ --debug -f .github/ci/ci-values.yaml
