@@ -2,9 +2,9 @@
 
 ![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.1.1](https://img.shields.io/badge/AppVersion-4.1.1-informational?style=flat-square)
 
-Helm chart for deploying SparkApplications using the Spark Operator
+Helm chart for deploying SparkApplications using Kubeflow Spark Operator
 
-**Homepage:** <https://spark.apache.org/>
+**Homepage:** <https://www.kubeflow.org/docs/components/spark-operator/>
 
 ## Usage
 
@@ -44,7 +44,7 @@ devbox run stop_k8s
 
 ## Source Code
 
-* <https://spark.apache.org/>
+* <https://github.com/kubeflow/spark-operator>
 * <https://github.com/datahub-local/spark-apps-helm/tree/main/spark-apps>
 
 ## Values
