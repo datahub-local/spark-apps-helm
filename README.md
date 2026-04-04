@@ -13,9 +13,17 @@ cd spark-apps-helm
 
 Install the Spark Operator before installing the chart. The local CI helpers do this automatically when you run `devbox run start_k8s`.
 
-## Deployment
+## :rocket: Deployment
 
-Render or install the chart from the repository root:
+To deploy the Helm Chart:
+
+1. Add the Helm repository:
+
+```shell
+$ helm repo add garage-helm https://datahub-local.github.io/garage-helm
+```
+
+2. Install the release:
 
 ```shell
 helm upgrade --install spark-apps ./spark-apps \
