@@ -9,16 +9,16 @@
   ],
   "shell": {
     "scripts": {
-      "start_k8s": "./.github/ci/start_k8s.sh",
-      "stop_k8s": "./.github/ci/stop_k8s.sh",
-      "test_install": "helm upgrade --install --create-namespace --namespace spark-apps --values .github/ci/ci-values.yaml spark-apps spark-apps",
-      "test_delete": "kubectl delete ns spark-apps",
-      "test_unit": "rm -rf \"$HOME/.local/share/helm/plugins/helm-unittest\" \"$HOME/.local/share/helm/plugins/helm-unittest.git\" && helm plugin install https://github.com/helm-unittest/helm-unittest.git >/dev/null 2>&1 && helm unittest spark-apps",
-      "init_charts": [
-        "./.github/ci/init_charts.sh"
-      ],
+      "start-k8s": ".github/ci/start_k8s.sh",
+      "stop-k8s": ".github/ci/stop_k8s.sh",
+      "test-k8s": ".github/ci/test_k8s.sh",
+      "test-check": ".github/ci/test_check.sh",
+      "test-install": ".github/ci/test_install.sh",
+      "test-unit": ".github/ci/test_unit.sh",
+      "test-delete": "kubectl delete ns --force servarr || true",
+      "init-charts": "./.github/ci/init_charts.sh",
       "lint": "extra_args=\"\"; if [[ \"${CACHE_HIT:-false}\" == \"true\" ]]; then extra_args=\"--skip-helm-dependencies\"; fi; ct lint --chart-dirs=. --charts=spark-apps --validate-maintainers=false ${extra_args}",
-      "test_renovate": "LOG_LEVEL=debug renovate --platform=local --dry-run=full"
+      "test-renovate": "LOG_LEVEL=debug renovate --platform=local --dry-run=full"
     }
   }
 }

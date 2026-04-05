@@ -3,7 +3,7 @@ spark:
     - regcred
 
 serviceAccount:
-  create: false
+  create: true
   name: spark
 
 scripts:

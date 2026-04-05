@@ -2,26 +2,31 @@
 
 ![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.1.1](https://img.shields.io/badge/AppVersion-4.1.1-informational?style=flat-square)
 
-Helm chart for deploying SparkApplications using the Spark Operator
+Helm chart for deploying SparkApplications using Kubeflow Spark Operator
 
-**Homepage:** <https://spark.apache.org/>
+**Homepage:** <https://www.kubeflow.org/docs/components/spark-operator/>
 
 ## Usage
 
 Install the Spark Operator before installing this chart. The local CI helpers do this automatically by deploying `spark-operator` into the k3d cluster.
 
 ```console
-helm upgrade --install spark-apps ./spark-apps \
+helm upgrade --install spark-apps oci://ghcr.io/datahub-local/spark-apps/spark-apps \
+  --version 0.1.1 \
   --namespace spark-apps \
   --create-namespace \
-  --values spark-apps/examples/values-example.yaml
+  --values my-values.yaml
 ```
+
+Use `examples/values-example.yaml` from this repository as a starting point for your own values file.
+
+When `serviceAccount.create` is true, the chart also creates a namespace-scoped Role and RoleBinding for that service account so Spark drivers can manage executor pods and the driver headless service. If you point the chart at an existing service account instead, make sure it already has equivalent permissions in the target namespace.
 
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples
 
-* `examples/values-example.yaml` shows a minimal chart install with packaged scripts and shared runtime configuration.
+* `examples/values-example.yaml` shows a minimal chart install with a chart-managed Spark service account, packaged scripts, and shared runtime configuration.
 * `examples/values-production.yaml` extends the base example with a chart-managed service account and production-oriented shared resources.
 * `examples/argocd-application.yaml` shows how to reference the chart from Argo CD.
 
@@ -44,7 +49,7 @@ devbox run stop_k8s
 
 ## Source Code
 
-* <https://spark.apache.org/>
+* <https://github.com/kubeflow/spark-operator>
 * <https://github.com/datahub-local/spark-apps-helm/tree/main/spark-apps>
 
 ## Values
@@ -58,9 +63,11 @@ devbox run stop_k8s
 | scripts.enabled | bool | `false` | Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods. |
 | scripts.mountPath | string | `"/opt/spark/scripts"` | Mount path for the bundled scripts inside Spark pods. |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the chart-managed service account. |
-| serviceAccount.create | bool | `false` | Create a chart-managed service account for Spark drivers. |
+| serviceAccount.create | bool | `true` | Create a chart-managed service account for Spark drivers. |
 | serviceAccount.labels | object | `{}` | Labels to add to the chart-managed service account. |
 | serviceAccount.name | string | `"spark"` | Name of the service account to use for Spark drivers. |
+| serviceAccount.rbac.create | bool | `true` | Create a namespace-scoped Role and RoleBinding for the chart-managed service account. |
+| serviceAccount.rbac.rules | list | `[{"apiGroups":[""],"resources":["pods","configmaps","persistentvolumeclaims","services"],"verbs":["get","list","watch","create","update","patch","delete","deletecollection"]}]` | Policy rules granted to the chart-managed Spark driver service account. |
 | sharedConfigMaps | list | `[]` | Shared ConfigMaps rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |
 | sharedSecrets | list | `[]` | Shared Secrets rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |
 | spark.image | string | `"apache/spark"` | Base image repository for Spark drivers and executors. |
