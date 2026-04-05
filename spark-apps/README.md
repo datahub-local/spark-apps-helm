@@ -20,11 +20,13 @@ helm upgrade --install spark-apps oci://ghcr.io/datahub-local/spark-apps/spark-a
 
 Use `examples/values-example.yaml` from this repository as a starting point for your own values file.
 
+When `serviceAccount.create` is true, the chart also creates a namespace-scoped Role and RoleBinding for that service account so Spark drivers can manage executor pods and the driver headless service. If you point the chart at an existing service account instead, make sure it already has equivalent permissions in the target namespace.
+
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples
 
-* `examples/values-example.yaml` shows a minimal chart install with packaged scripts and shared runtime configuration.
+* `examples/values-example.yaml` shows a minimal chart install with a chart-managed Spark service account, packaged scripts, and shared runtime configuration.
 * `examples/values-production.yaml` extends the base example with a chart-managed service account and production-oriented shared resources.
 * `examples/argocd-application.yaml` shows how to reference the chart from Argo CD.
 
@@ -64,6 +66,8 @@ devbox run stop_k8s
 | serviceAccount.create | bool | `false` | Create a chart-managed service account for Spark drivers. |
 | serviceAccount.labels | object | `{}` | Labels to add to the chart-managed service account. |
 | serviceAccount.name | string | `"spark"` | Name of the service account to use for Spark drivers. |
+| serviceAccount.rbac.create | bool | `true` | Create a namespace-scoped Role and RoleBinding for the chart-managed service account. |
+| serviceAccount.rbac.rules | list | `[{"apiGroups":[""],"resources":["pods","configmaps","persistentvolumeclaims","services"],"verbs":["get","list","watch","create","update","patch","delete","deletecollection"]}]` | Policy rules granted to the chart-managed Spark driver service account. |
 | sharedConfigMaps | list | `[]` | Shared ConfigMaps rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |
 | sharedSecrets | list | `[]` | Shared Secrets rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |
 | spark.image | string | `"apache/spark"` | Base image repository for Spark drivers and executors. |

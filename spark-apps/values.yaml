@@ -27,13 +27,34 @@ commonAnnotations: {}
 
 serviceAccount:
   # -- Create a chart-managed service account for Spark drivers.
-  create: false
+  create: true
   # -- Name of the service account to use for Spark drivers.
   name: spark
   # -- Annotations to add to the chart-managed service account.
   annotations: {}
   # -- Labels to add to the chart-managed service account.
   labels: {}
+  rbac:
+    # -- Create a namespace-scoped Role and RoleBinding for the chart-managed service account.
+    create: true
+    # -- Policy rules granted to the chart-managed Spark driver service account.
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+          - configmaps
+          - persistentvolumeclaims
+          - services
+        verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+          - deletecollection
 
 scripts:
   # -- Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods.

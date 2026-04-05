@@ -31,6 +31,14 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "spark-apps.serviceAccountRoleName" -}}
+{{- printf "%s-role" (include "spark-apps.serviceAccountName" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "spark-apps.serviceAccountRoleBindingName" -}}
+{{- printf "%s-binding" (include "spark-apps.serviceAccountName" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "spark-apps.sharedConfigMapName" -}}
 {{- $root := index . "root" -}}
 {{- $index := index . "index" -}}
