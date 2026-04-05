@@ -2,20 +2,23 @@
 
 ![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.1.1](https://img.shields.io/badge/AppVersion-4.1.1-informational?style=flat-square)
 
-Helm chart for deploying SparkApplications using the Spark Operator
+Helm chart for deploying SparkApplications using Kubeflow Spark Operator
 
-**Homepage:** <https://spark.apache.org/>
+**Homepage:** <https://www.kubeflow.org/docs/components/spark-operator/>
 
 ## Usage
 
 Install the Spark Operator before installing this chart. The local CI helpers do this automatically by deploying `spark-operator` into the k3d cluster.
 
 ```console
-helm upgrade --install spark-apps ./spark-apps \
+helm upgrade --install spark-apps oci://ghcr.io/datahub-local/spark-apps/spark-apps \
+  --version 0.1.1 \
   --namespace spark-apps \
   --create-namespace \
-  --values spark-apps/examples/values-example.yaml
+  --values my-values.yaml
 ```
+
+Use `examples/values-example.yaml` from this repository as a starting point for your own values file.
 
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
@@ -44,7 +47,7 @@ devbox run stop_k8s
 
 ## Source Code
 
-* <https://spark.apache.org/>
+* <https://github.com/kubeflow/spark-operator>
 * <https://github.com/datahub-local/spark-apps-helm/tree/main/spark-apps>
 
 ## Values
