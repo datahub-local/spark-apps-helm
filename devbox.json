@@ -15,6 +15,7 @@
       "setup-python": "uv venv .venv && uv pip install -r charts/servarr/config/scripts/requirements.txt",
       "test-check": ".github/ci/test_check.sh",
       "test-install": ".github/ci/test_install.sh",
+      "test-unit": ".github/ci/test_unit.sh",
       "test-delete": "kubectl delete ns --force servarr || true",
       "init-charts": "./.github/ci/init_charts.sh",
       "lint": "extra_args=\"\"; if [[ \"${CACHE_HIT:-false}\" == \"true\" ]]; then extra_args=\"--skip-helm-dependencies\"; fi; ct lint --chart-dirs=. --charts=spark-apps --validate-maintainers=false ${extra_args}",
