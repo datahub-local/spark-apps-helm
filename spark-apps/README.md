@@ -11,11 +11,14 @@ Helm chart for deploying SparkApplications using Kubeflow Spark Operator
 Install the Spark Operator before installing this chart. The local CI helpers do this automatically by deploying `spark-operator` into the k3d cluster.
 
 ```console
-helm upgrade --install spark-apps ./spark-apps \
+helm upgrade --install spark-apps oci://ghcr.io/datahub-local/spark-apps/spark-apps \
+  --version 0.1.1 \
   --namespace spark-apps \
   --create-namespace \
-  --values spark-apps/examples/values-example.yaml
+  --values my-values.yaml
 ```
+
+Use `examples/values-example.yaml` from this repository as a starting point for your own values file.
 
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
