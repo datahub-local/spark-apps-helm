@@ -63,7 +63,7 @@ devbox run stop_k8s
 | scripts.enabled | bool | `false` | Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods. |
 | scripts.mountPath | string | `"/opt/spark/scripts"` | Mount path for the bundled scripts inside Spark pods. |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the chart-managed service account. |
-| serviceAccount.create | bool | `false` | Create a chart-managed service account for Spark drivers. |
+| serviceAccount.create | bool | `true` | Create a chart-managed service account for Spark drivers. |
 | serviceAccount.labels | object | `{}` | Labels to add to the chart-managed service account. |
 | serviceAccount.name | string | `"spark"` | Name of the service account to use for Spark drivers. |
 | serviceAccount.rbac.create | bool | `true` | Create a namespace-scoped Role and RoleBinding for the chart-managed service account. |
