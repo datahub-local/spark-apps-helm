@@ -55,6 +55,8 @@ sharedSecrets:
 
 sparkApplications:
   - name: sample-wordcount
+    # schedule: "0 */6 * * *"
+    # suspend: false
     type: Python
     mode: cluster
     mainApplicationFile: local:///opt/spark/scripts/example_job.py

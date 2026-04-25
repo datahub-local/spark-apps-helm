@@ -1,0 +1,33 @@
+spark:
+  pullSecrets:
+    - regcred
+
+serviceAccount:
+  create: false
+  name: chart-sa
+
+scripts:
+  enabled: true
+  files:
+    example_job.py: |
+      print("scheduled")
+
+sparkApplications:
+  - name: scheduled-app
+    schedule: "0 * * * *"
+    suspend: true
+    timeZone: UTC
+    concurrencyPolicy: Forbid
+    successfulRunHistoryLimit: 3
+    failedRunHistoryLimit: 2
+    type: Python
+    mode: cluster
+    mainApplicationFile: local:///opt/spark/scripts/example_job.py
+    driver:
+      cores: 1
+      memory: 512m
+      coreLimit: 1200m
+    executor:
+      instances: 1
+      cores: 1
+      memory: 512m

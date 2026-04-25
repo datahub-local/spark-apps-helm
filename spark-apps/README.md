@@ -26,6 +26,8 @@ For chart-managed resources, configured `name` fields are treated as suffixes an
 
 When `scripts.enabled` is true, entries from `scripts.files` are packaged into a ConfigMap and mounted into both the driver and executor pods. This keeps the chart usable as a dependency because script contents are supplied through values. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
+Set `sparkApplications[].schedule` to render a `ScheduledSparkApplication` instead of a `SparkApplication`. The same entry can also set `suspend`; without a schedule it maps to `SparkApplication.spec.suspend`, and with a schedule it maps to `ScheduledSparkApplication.spec.suspend`.
+
 ## Examples
 
 * `examples/values-example.yaml` shows a minimal chart install with a chart-managed Spark service account, packaged scripts, and shared runtime configuration.
@@ -78,7 +80,7 @@ devbox run stop_k8s
 | spark.pullSecrets | list | `[]` | Image pull secrets added to every SparkApplication spec. |
 | spark.sparkVersion | string | `""` | Shared Spark version applied to every SparkApplication. Defaults to the chart appVersion when empty. |
 | spark.tag | string | `""` | Shared Spark image tag. Defaults to spark.sparkVersion and then chart appVersion when empty. |
-| sparkApplications | list | `[]` | List of SparkApplication resources to render. Each entry should include the SparkApplication spec plus driver and executor settings. |
+| sparkApplications | list | `[]` | List of SparkApplication resources to render. Set sparkApplications[].schedule to render a ScheduledSparkApplication, and sparkApplications[].suspend to suspend either the application itself or subsequent scheduled runs. |
 | sparkOperator | object | `{"enabled":false}` | Configure the operator by adding values following the spark-operator chart's values.yaml structure. |
 | sparkOperator.enabled | bool | `false` | Enable/disable spark-operator as a dependency |
 

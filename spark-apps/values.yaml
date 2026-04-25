@@ -73,5 +73,5 @@ sharedConfigMaps: []
 # -- Shared Secrets rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes.
 sharedSecrets: []
 
-# -- List of SparkApplication resources to render. Each entry should include the SparkApplication spec plus driver and executor settings.
+# -- List of SparkApplication resources to render. Set sparkApplications[].schedule to render a ScheduledSparkApplication, and sparkApplications[].suspend to suspend either the application itself or subsequent scheduled runs.
 sparkApplications: []
