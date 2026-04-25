@@ -22,6 +22,8 @@ Use `examples/values-example.yaml` from this repository as a starting point for 
 
 When `serviceAccount.create` is true, the chart also creates a namespace-scoped Role and RoleBinding for that service account so Spark drivers can manage executor pods and the driver headless service. If you point the chart at an existing service account instead, make sure it already has equivalent permissions in the target namespace.
 
+For chart-managed resources, configured `name` fields are treated as suffixes and are prefixed with the chart name, or with `fullnameOverride` when it is set. Existing external references such as a pre-created service account or scripts ConfigMap are still used verbatim.
+
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples
@@ -65,7 +67,7 @@ devbox run stop_k8s
 | serviceAccount.annotations | object | `{}` | Annotations to add to the chart-managed service account. |
 | serviceAccount.create | bool | `true` | Create a chart-managed service account for Spark drivers. |
 | serviceAccount.labels | object | `{}` | Labels to add to the chart-managed service account. |
-| serviceAccount.name | string | `"spark"` | Name of the service account to use for Spark drivers. |
+| serviceAccount.name | string | `"spark"` | Suffix for the chart-managed service account name when create=true, or the exact existing service account name when create=false. |
 | serviceAccount.rbac.create | bool | `true` | Create a namespace-scoped Role and RoleBinding for the chart-managed service account. |
 | serviceAccount.rbac.rules | list | `[{"apiGroups":[""],"resources":["pods","configmaps","persistentvolumeclaims","services"],"verbs":["get","list","watch","create","update","patch","delete","deletecollection"]}]` | Policy rules granted to the chart-managed Spark driver service account. |
 | sharedConfigMaps | list | `[]` | Shared ConfigMaps rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |

@@ -11,9 +11,9 @@ tests:
         documentIndex: 0
       - equal:
           path: metadata.name
-          value: common-env
+          value: spark-apps-common-env
         documentIndex: 0
       - equal:
           path: metadata.name
-          value: tls-secret
+          value: spark-apps-tls-secret
         documentIndex: 3

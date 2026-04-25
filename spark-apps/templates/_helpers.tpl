@@ -2,6 +2,25 @@
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "spark-apps.resourcePrefix" -}}
+{{- if .Values.fullnameOverride -}}
+{{- include "spark-apps.fullname" . -}}
+{{- else -}}
+{{- include "spark-apps.name" . -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "spark-apps.chartManagedName" -}}
+{{- $root := index . "root" -}}
+{{- $name := index . "name" -}}
+{{- $prefix := include "spark-apps.resourcePrefix" $root -}}
+{{- if or (eq $name $prefix) (hasPrefix (printf "%s-" $prefix) $name) -}}
+{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" $prefix $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "spark-apps.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
@@ -25,7 +44,11 @@
 
 {{- define "spark-apps.serviceAccountName" -}}
 {{- if .Values.serviceAccount.name -}}
+{{- if .Values.serviceAccount.create -}}
+{{- include "spark-apps.chartManagedName" (dict "root" . "name" .Values.serviceAccount.name) -}}
+{{- else -}}
 {{- .Values.serviceAccount.name -}}
+{{- end -}}
 {{- else -}}
 {{- include "spark-apps.fullname" . -}}
 {{- end -}}
@@ -43,14 +66,22 @@
 {{- $root := index . "root" -}}
 {{- $index := index . "index" -}}
 {{- $config := index . "config" -}}
-{{- coalesce $config.name (printf "%s-config-%d" (include "spark-apps.fullname" $root) $index) -}}
+{{- if $config.name -}}
+{{- include "spark-apps.chartManagedName" (dict "root" $root "name" $config.name) -}}
+{{- else -}}
+{{- printf "%s-config-%d" (include "spark-apps.fullname" $root) $index -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "spark-apps.sharedSecretName" -}}
 {{- $root := index . "root" -}}
 {{- $index := index . "index" -}}
 {{- $secret := index . "secret" -}}
-{{- coalesce $secret.name (printf "%s-secret-%d" (include "spark-apps.fullname" $root) $index) -}}
+{{- if $secret.name -}}
+{{- include "spark-apps.chartManagedName" (dict "root" $root "name" $secret.name) -}}
+{{- else -}}
+{{- printf "%s-secret-%d" (include "spark-apps.fullname" $root) $index -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "spark-apps.labels" -}}

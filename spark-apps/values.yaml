@@ -28,7 +28,7 @@ commonAnnotations: {}
 serviceAccount:
   # -- Create a chart-managed service account for Spark drivers.
   create: true
-  # -- Name of the service account to use for Spark drivers.
+  # -- Suffix for the chart-managed service account name when create=true, or the exact existing service account name when create=false.
   name: spark
   # -- Annotations to add to the chart-managed service account.
   annotations: {}

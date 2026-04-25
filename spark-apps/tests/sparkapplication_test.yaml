@@ -25,12 +25,12 @@ tests:
           path: spec.driver.envFrom
           content:
             configMapRef:
-              name: common-env
+              name: spark-apps-common-env
       - contains:
           path: spec.driver.envFrom
           content:
             secretRef:
-              name: api-secret
+              name: spark-apps-api-secret
       - notContains:
           path: spec.driver.volumeMounts
           content:
@@ -55,7 +55,7 @@ tests:
           value: "apache/spark:4.1.1"
       - equal:
           path: spec.driver.serviceAccount
-          value: spark-runtime
+          value: spark-apps-spark-runtime
       - contains:
           path: spec.imagePullSecrets
           content: registry-prod
@@ -63,4 +63,4 @@ tests:
           path: spec.driver.envFrom
           content:
             configMapRef:
-              name: runtime-config
+              name: spark-apps-runtime-config
