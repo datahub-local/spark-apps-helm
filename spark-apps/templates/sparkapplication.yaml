@@ -2,7 +2,10 @@
 {{- range $index, $app := .Values.sparkApplications }}
 {{- $appEnabled := or (not (hasKey $app "enabled")) $app.enabled -}}
 {{- if $appEnabled }}
-{{- $appName := default (printf "%s-%d" (include "spark-apps.fullname" $root) $index) $app.name -}}
+{{- $appName := printf "%s-%d" (include "spark-apps.fullname" $root) $index -}}
+{{- if $app.name -}}
+{{- $appName = include "spark-apps.chartManagedName" (dict "root" $root "name" $app.name) -}}
+{{- end -}}
 {{- $sparkVersion := default (include "spark-apps.sparkVersion" $root) $app.sparkVersion -}}
 {{- $sparkImage := default (include "spark-apps.sparkImage" $root) $app.image -}}
 {{- $sparkPullPolicy := default (include "spark-apps.sparkPullPolicy" $root) $app.imagePullPolicy -}}

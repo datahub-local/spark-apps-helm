@@ -28,7 +28,7 @@ commonAnnotations: {}
 serviceAccount:
   # -- Create a chart-managed service account for Spark drivers.
   create: true
-  # -- Name of the service account to use for Spark drivers.
+  # -- Suffix for the chart-managed service account name when create=true, or the exact existing service account name when create=false.
   name: spark
   # -- Annotations to add to the chart-managed service account.
   annotations: {}
@@ -59,7 +59,7 @@ serviceAccount:
 scripts:
   # -- Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods.
   enabled: false
-  # -- Existing ConfigMap name to use for packaged scripts. Leave empty to use the chart-generated name.
+  # -- Suffix for the chart-managed scripts ConfigMap name when enabled. Leave empty to use the chart-generated default.
   configMapName: ""
   # -- Mount path for the bundled scripts inside Spark pods.
   mountPath: /opt/spark/scripts

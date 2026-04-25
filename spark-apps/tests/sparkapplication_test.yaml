@@ -25,12 +25,12 @@ tests:
           path: spec.driver.envFrom
           content:
             configMapRef:
-              name: common-env
+              name: RELEASE-NAME-common-env
       - contains:
           path: spec.driver.envFrom
           content:
             secretRef:
-              name: api-secret
+              name: RELEASE-NAME-api-secret
       - notContains:
           path: spec.driver.volumeMounts
           content:
@@ -55,7 +55,7 @@ tests:
           value: "apache/spark:4.1.1"
       - equal:
           path: spec.driver.serviceAccount
-          value: spark-runtime
+          value: RELEASE-NAME-spark-runtime
       - contains:
           path: spec.imagePullSecrets
           content: registry-prod
@@ -63,4 +63,17 @@ tests:
           path: spec.driver.envFrom
           content:
             configMapRef:
-              name: runtime-config
+              name: RELEASE-NAME-runtime-config
+  - it: references the prefixed scripts configmap name
+    values:
+      - ../examples/values-example.yaml
+    set:
+      scripts.configMapName: bundled-scripts
+    asserts:
+      - contains:
+          path: spec.volumes
+          content:
+            name: spark-scripts
+            configMap:
+              name: RELEASE-NAME-bundled-scripts
+              defaultMode: 493

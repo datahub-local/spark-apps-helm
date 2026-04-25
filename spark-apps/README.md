@@ -22,6 +22,8 @@ Use `examples/values-example.yaml` from this repository as a starting point for 
 
 When `serviceAccount.create` is true, the chart also creates a namespace-scoped Role and RoleBinding for that service account so Spark drivers can manage executor pods and the driver headless service. If you point the chart at an existing service account instead, make sure it already has equivalent permissions in the target namespace.
 
+For chart-managed resources, configured `name` fields are treated as suffixes and are prefixed with the Helm release name, or with `fullnameOverride` when it is set. External references such as a pre-created service account are still used verbatim.
+
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples
@@ -58,14 +60,14 @@ devbox run stop_k8s
 |-----|------|---------|-------------|
 | commonAnnotations | object | `{}` | Additional annotations to add to all resources created by this chart. |
 | commonLabels | object | `{}` | Additional labels to add to all resources created by this chart. |
-| scripts.configMapName | string | `""` | Existing ConfigMap name to use for packaged scripts. Leave empty to use the chart-generated name. |
+| scripts.configMapName | string | `""` | Suffix for the chart-managed scripts ConfigMap name when enabled. Leave empty to use the chart-generated default. |
 | scripts.defaultMode | int | `493` | File mode used for the scripts ConfigMap volume. |
 | scripts.enabled | bool | `false` | Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods. |
 | scripts.mountPath | string | `"/opt/spark/scripts"` | Mount path for the bundled scripts inside Spark pods. |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the chart-managed service account. |
 | serviceAccount.create | bool | `true` | Create a chart-managed service account for Spark drivers. |
 | serviceAccount.labels | object | `{}` | Labels to add to the chart-managed service account. |
-| serviceAccount.name | string | `"spark"` | Name of the service account to use for Spark drivers. |
+| serviceAccount.name | string | `"spark"` | Suffix for the chart-managed service account name when create=true, or the exact existing service account name when create=false. |
 | serviceAccount.rbac.create | bool | `true` | Create a namespace-scoped Role and RoleBinding for the chart-managed service account. |
 | serviceAccount.rbac.rules | list | `[{"apiGroups":[""],"resources":["pods","configmaps","persistentvolumeclaims","services"],"verbs":["get","list","watch","create","update","patch","delete","deletecollection"]}]` | Policy rules granted to the chart-managed Spark driver service account. |
 | sharedConfigMaps | list | `[]` | Shared ConfigMaps rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes. |

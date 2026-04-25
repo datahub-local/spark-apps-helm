@@ -23,6 +23,8 @@ Use `examples/values-example.yaml` from this repository as a starting point for 
 
 When `serviceAccount.create` is true, the chart also creates a namespace-scoped Role and RoleBinding for that service account so Spark drivers can manage executor pods and the driver headless service. If you point the chart at an existing service account instead, make sure it already has equivalent permissions in the target namespace.
 
+For chart-managed resources, configured `name` fields are treated as suffixes and are prefixed with the Helm release name, or with `fullnameOverride` when it is set. External references such as a pre-created service account are still used verbatim.
+
 When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples

@@ -9,7 +9,7 @@ maintainers:
   - name: alvsanand
 type: application
 
-version: 0.1.2
+version: 0.1.4
 appVersion: "4.1.1"
 
 dependencies:

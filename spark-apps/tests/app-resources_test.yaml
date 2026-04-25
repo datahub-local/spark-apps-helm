@@ -11,9 +11,9 @@ tests:
         documentIndex: 0
       - equal:
           path: metadata.name
-          value: common-env
+          value: RELEASE-NAME-common-env
         documentIndex: 0
       - equal:
           path: metadata.name
-          value: tls-secret
+          value: RELEASE-NAME-tls-secret
         documentIndex: 3
