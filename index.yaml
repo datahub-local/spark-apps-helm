@@ -3,6 +3,28 @@ entries:
   spark-apps:
   - apiVersion: v2
     appVersion: 4.1.1
+    created: "2026-04-25T15:37:21.698322653Z"
+    dependencies:
+    - alias: sparkOperator
+      condition: sparkOperator.enabled
+      name: spark-operator
+      repository: https://kubeflow.github.io/spark-operator
+      version: 2.5.0
+    description: Helm chart for deploying SparkApplications using Kubeflow Spark Operator
+    digest: 59663e821678ea31d96011e95dd8794cc9324a2c6ac2eb5823b74cd82cc6c88d
+    home: https://www.kubeflow.org/docs/components/spark-operator/
+    maintainers:
+    - name: alvsanand
+    name: spark-apps
+    sources:
+    - https://github.com/kubeflow/spark-operator
+    - https://github.com/datahub-local/spark-apps-helm/tree/main/spark-apps
+    type: application
+    urls:
+    - https://github.com/datahub-local/spark-apps-helm/releases/download/spark-apps-0.2.0/spark-apps-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 4.1.1
     created: "2026-04-25T15:13:27.824759786Z"
     dependencies:
     - alias: sparkOperator
@@ -111,4 +133,4 @@ entries:
     urls:
     - https://github.com/datahub-local/spark-apps-helm/releases/download/spark-apps-0.1.0/spark-apps-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-25T15:13:27.824779092Z"
+generated: "2026-04-25T15:37:21.698344185Z"
