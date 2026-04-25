@@ -1,0 +1,6 @@
+scripts:
+  enabled: true
+  configMapName: bundled-scripts
+  files:
+    entrypoint.py: |
+      print("hello from values")

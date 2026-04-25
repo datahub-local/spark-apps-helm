@@ -57,10 +57,12 @@ serviceAccount:
           - deletecollection
 
 scripts:
-  # -- Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods.
+  # -- Bundle script files from scripts.files into a ConfigMap and mount them into driver and executor pods.
   enabled: false
   # -- Suffix for the chart-managed scripts ConfigMap name when enabled. Leave empty to use the chart-generated default.
   configMapName: ""
+  # -- Map of file names to script contents bundled into the chart-managed scripts ConfigMap when enabled.
+  files: {}
   # -- Mount path for the bundled scripts inside Spark pods.
   mountPath: /opt/spark/scripts
   # -- File mode used for the scripts ConfigMap volume.

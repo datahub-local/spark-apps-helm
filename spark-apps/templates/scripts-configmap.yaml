@@ -13,6 +13,8 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.scripts.files }}
 data:
-{{ (.Files.Glob "scripts/*").AsConfig | indent 2 }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}

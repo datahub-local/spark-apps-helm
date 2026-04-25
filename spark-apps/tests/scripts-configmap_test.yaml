@@ -2,10 +2,10 @@ suite: scripts configmap template
 templates:
   - templates/scripts-configmap.yaml
 tests:
-  - it: prefixes a configured scripts configmap name
-    set:
-      scripts.enabled: true
-      scripts.configMapName: bundled-scripts
+  - it: prefixes a configured scripts configmap name and renders script data from
+      values
+    values:
+      - fixtures/scripts-values.yaml
     asserts:
       - hasDocuments:
           count: 1
@@ -14,3 +14,7 @@ tests:
       - equal:
           path: metadata.name
           value: RELEASE-NAME-bundled-scripts
+      - equal:
+          path: data
+          value:
+            entrypoint.py: print("hello from values")

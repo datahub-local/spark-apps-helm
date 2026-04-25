@@ -24,7 +24,7 @@ When `serviceAccount.create` is true, the chart also creates a namespace-scoped 
 
 For chart-managed resources, configured `name` fields are treated as suffixes and are prefixed with the Helm release name, or with `fullnameOverride` when it is set. External references such as a pre-created service account are still used verbatim.
 
-When `scripts.enabled` is true, files from `scripts/` are packaged into a ConfigMap and mounted into both the driver and executor pods. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
+When `scripts.enabled` is true, entries from `scripts.files` are packaged into a ConfigMap and mounted into both the driver and executor pods. This keeps the chart usable as a dependency because script contents are supplied through values. Shared ConfigMaps and Secrets are rendered once per release and can be attached to SparkApplications either through `envFrom` or read-only volume mounts.
 
 ## Examples
 
@@ -61,8 +61,9 @@ devbox run stop_k8s
 | commonAnnotations | object | `{}` | Additional annotations to add to all resources created by this chart. |
 | commonLabels | object | `{}` | Additional labels to add to all resources created by this chart. |
 | scripts.configMapName | string | `""` | Suffix for the chart-managed scripts ConfigMap name when enabled. Leave empty to use the chart-generated default. |
+| scripts.files | object | `{}` | Map of file names to script contents bundled into the chart-managed scripts ConfigMap when enabled. |
 | scripts.defaultMode | int | `493` | File mode used for the scripts ConfigMap volume. |
-| scripts.enabled | bool | `false` | Bundle files from scripts/ into a ConfigMap and mount them into driver and executor pods. |
+| scripts.enabled | bool | `false` | Bundle script files from scripts.files into a ConfigMap and mount them into driver and executor pods. |
 | scripts.mountPath | string | `"/opt/spark/scripts"` | Mount path for the bundled scripts inside Spark pods. |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the chart-managed service account. |
 | serviceAccount.create | bool | `true` | Create a chart-managed service account for Spark drivers. |
