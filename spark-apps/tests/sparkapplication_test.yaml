@@ -132,3 +132,398 @@ tests:
             configMap:
               name: RELEASE-NAME-bundled-scripts
               defaultMode: 493
+
+  # Tests for new SparkApplicationSpec-level parameters
+  - it: supports SparkApplicationSpec-level advanced parameters
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.pythonVersion
+          value: "3"
+      - equal:
+          path: spec.proxyUser
+          value: spark-user
+      - equal:
+          path: spec.sparkConfigMap
+          value: spark-config
+      - equal:
+          path: spec.hadoopConfigMap
+          value: hadoop-config
+      - equal:
+          path: spec.memoryOverheadFactor
+          value: "0.1"
+      - equal:
+          path: spec.timeToLiveSeconds
+          value: 86400
+
+  - it: supports batchSchedulerOptions
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.batchScheduler
+          value: volcano
+      - equal:
+          path: spec.batchSchedulerOptions.queue
+          value: high-priority
+      - equal:
+          path: spec.batchSchedulerOptions.priorityClassName
+          value: high-priority
+
+  - it: supports sparkUIOptions
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.sparkUIOptions.servicePort
+          value: 4040
+      - equal:
+          path: spec.sparkUIOptions.servicePortName
+          value: spark-driver-ui-port
+      - equal:
+          path: spec.sparkUIOptions.serviceType
+          value: ClusterIP
+      - equal:
+          path: spec.sparkUIOptions.serviceAnnotations["prometheus.io/scrape"]
+          value: "true"
+      - equal:
+          path: spec.sparkUIOptions.serviceLabels.monitoring
+          value: enabled
+
+  - it: supports driverIngressOptions
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driverIngressOptions[0].servicePort
+          value: 8081
+      - equal:
+          path: spec.driverIngressOptions[0].servicePortName
+          value: custom-port
+
+  - it: supports dynamicAllocation
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.dynamicAllocation.enabled
+          value: true
+      - equal:
+          path: spec.dynamicAllocation.initialExecutors
+          value: 2
+      - equal:
+          path: spec.dynamicAllocation.minExecutors
+          value: 1
+      - equal:
+          path: spec.dynamicAllocation.maxExecutors
+          value: 10
+
+  - it: supports restart policy
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.restartPolicy.type
+          value: OnFailure
+      - equal:
+          path: spec.restartPolicy.onFailureRetries
+          value: 3
+      - equal:
+          path: spec.restartPolicy.onFailureRetryInterval
+          value: 10
+
+  - it: supports monitoring configuration
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.monitoring.exposeDriverMetrics
+          value: true
+      - equal:
+          path: spec.monitoring.exposeExecutorMetrics
+          value: true
+      - equal:
+          path: spec.monitoring.prometheus.jmxExporterJar
+          value: /prometheus/jmx_exporter.jar
+      - equal:
+          path: spec.monitoring.prometheus.port
+          value: 8090
+
+  - it: supports pod-level scheduling (nodeSelector, tolerations)
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.nodeSelector.workload-type
+          value: spark
+      - equal:
+          path: spec.tolerations[0].key
+          value: workload-type
+      - equal:
+          path: spec.tolerations[0].value
+          value: spark
+
+  # Tests for new Driver parameters
+  - it: supports driver core request and memory limits
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.coreRequest
+          value: "1"
+      - equal:
+          path: spec.driver.memoryLimit
+          value: "5g"
+      - equal:
+          path: spec.driver.memoryOverhead
+          value: "1g"
+
+  - it: supports driver javaOptions and kubernetesMaster
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.javaOptions
+          value: "-XX:+UseG1GC -XX:MaxGCPauseMillis=30"
+      - equal:
+          path: spec.driver.kubernetesMaster
+          value: "https://kubernetes.default.svc"
+
+  - it: supports driver service annotations and labels
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.serviceAnnotations.monitoring
+          value: "true"
+      - equal:
+          path: spec.driver.serviceLabels.component
+          value: driver
+
+  - it: supports driver custom ports
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - contains:
+          path: spec.driver.ports
+          content:
+            name: custom
+            containerPort: 8082
+            protocol: TCP
+
+  - it: supports driver image override and GPU
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.image
+          value: "apache/spark:3.3.0"
+      - equal:
+          path: spec.driver.gpu.name
+          value: nvidia.com/gpu
+      - equal:
+          path: spec.driver.gpu.quantity
+          value: 1
+
+  - it: supports driver pod security context
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.podSecurityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.driver.securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.driver.priorityClassName
+          value: high-priority
+      - equal:
+          path: spec.driver.schedulerName
+          value: custom-scheduler
+
+  - it: supports driver networking configuration
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.driver.hostNetwork
+          value: false
+      - equal:
+          path: spec.driver.terminationGracePeriodSeconds
+          value: 30
+      - equal:
+          path: spec.driver.shareProcessNamespace
+          value: false
+      - isNotEmpty:
+          path: spec.driver.affinity.podAffinity
+      - isNotEmpty:
+          path: spec.driver.tolerations
+      - isNotEmpty:
+          path: spec.driver.dnsConfig.nameservers
+      - isNotEmpty:
+          path: spec.driver.hostAliases
+
+  - it: supports driver configMaps and secrets
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - contains:
+          path: spec.driver.configMaps
+          content:
+            name: driver-config
+            path: /etc/driver-config
+      - contains:
+          path: spec.driver.secrets
+          content:
+            name: driver-secret
+            path: /etc/driver-secrets
+
+  - it: supports driver lifecycle hooks
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - isNotEmpty:
+          path: spec.driver.lifecycle.preStop
+
+  - it: supports driver sidecars and initContainers
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - contains:
+          path: spec.driver.sidecars
+          content:
+            name: metrics-exporter
+            image: prom/prometheus:latest
+      - contains:
+          path: spec.driver.initContainers
+          content:
+            name: init-config
+            image: busybox:latest
+
+  # Tests for new Executor parameters
+  - it: supports executor core request and memory limits
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.executor.coreRequest
+          value: "1"
+      - equal:
+          path: spec.executor.memoryLimit
+          value: "5g"
+      - equal:
+          path: spec.executor.memoryOverhead
+          value: "1g"
+      - equal:
+          path: spec.executor.deleteOnTermination
+          value: true
+
+  - it: supports executor javaOptions
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.executor.javaOptions
+          value: "-XX:+UseG1GC"
+
+  - it: supports executor custom ports
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - isNotEmpty:
+          path: spec.executor.ports
+
+  - it: supports executor image override and GPU
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.executor.image
+          value: "apache/spark:3.3.0"
+      - equal:
+          path: spec.executor.gpu.name
+          value: nvidia.com/gpu
+      - equal:
+          path: spec.executor.gpu.quantity
+          value: 1
+
+  - it: supports executor pod security context
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.executor.podSecurityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.executor.securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.executor.priorityClassName
+          value: high-priority
+      - equal:
+          path: spec.executor.schedulerName
+          value: custom-scheduler
+
+  - it: supports executor networking configuration
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - equal:
+          path: spec.executor.hostNetwork
+          value: false
+      - equal:
+          path: spec.executor.terminationGracePeriodSeconds
+          value: 30
+      - equal:
+          path: spec.executor.serviceAccount
+          value: executor-sa
+      - equal:
+          path: spec.executor.shareProcessNamespace
+          value: false
+      - isNotEmpty:
+          path: spec.executor.affinity.podAntiAffinity
+      - isNotEmpty:
+          path: spec.executor.tolerations
+      - isNotEmpty:
+          path: spec.executor.dnsConfig.nameservers
+      - isNotEmpty:
+          path: spec.executor.hostAliases
+
+  - it: supports executor configMaps and secrets
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - contains:
+          path: spec.executor.configMaps
+          content:
+            name: executor-config
+            path: /etc/executor
+      - contains:
+          path: spec.executor.secrets
+          content:
+            name: executor-secret
+            path: /etc/executor-secrets
+
+  - it: supports executor lifecycle hooks
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - isNotEmpty:
+          path: spec.executor.lifecycle.preStop
+
+  - it: supports executor sidecars and initContainers
+    values:
+      - fixtures/advanced-parameters-values.yaml
+    asserts:
+      - contains:
+          path: spec.executor.sidecars
+          content:
+            name: log-forwarder
+            image: fluentd:latest
+      - contains:
+          path: spec.executor.initContainers
+          content:
+            name: init-executor
+            image: busybox:latest

@@ -73,5 +73,322 @@ sharedConfigMaps: []
 # -- Shared Secrets rendered once per release and optionally attached to SparkApplications as envFrom sources or mounted volumes.
 sharedSecrets: []
 
-# -- List of SparkApplication resources to render. Set sparkApplications[].schedule to render a ScheduledSparkApplication, and sparkApplications[].suspend to suspend either the application itself or subsequent scheduled runs.
+# -- List of SparkApplication resources to render. Set sparkApplications[].schedule to render a ScheduledSparkApplication, and sparkApplications[].suspend to suspend either the application itself or subsequent scheduled runs. Read https://github.com/kubeflow/spark-operator/blob/master/docs/api-docs.md#sparkapplication for all supported parameters.
 sparkApplications: []
+
+# -- Example SparkApplication with comprehensive parameter support:
+# sparkApplications:
+#   - name: example-app
+#     type: Python
+#     mode: cluster
+#     mainApplicationFile: s3://my-bucket/app.py
+#     arguments:
+#       - --arg1
+#       - value1
+#     sparkVersion: "3.3.0"
+#     image: apache/spark:3.3.0
+#     imagePullPolicy: IfNotPresent
+#     pythonVersion: "3"
+#     proxyUser: spark-user
+#     mainClass: "com.example.MyApp"
+#
+#     # Spark and Hadoop configuration
+#     sparkConf:
+#       spark.sql.shuffle.partitions: "32"
+#     hadoopConf:
+#       fs.s3a.endpoint: https://s3.amazonaws.com
+#     sparkConfigMap: spark-config
+#     hadoopConfigMap: hadoop-config
+#
+#     # Application dependencies
+#     deps:
+#       jars:
+#         - s3://my-bucket/jars/lib.jar
+#       pyFiles:
+#         - s3://my-bucket/py-libs/lib.zip
+#       packages:
+#         - org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0
+#       excludePackages:
+#         - org.apache.spark:spark-core_2.12
+#       repositories:
+#         - https://repo.maven.apache.org/maven2
+#       archives:
+#         - s3://my-bucket/data.tar.gz#data
+#       files:
+#         - s3://my-bucket/data.csv
+#
+#     # Memory and resource configuration
+#     memoryOverheadFactor: "0.1"
+#
+#     # Restart policy
+#     restartPolicy:
+#       type: OnFailure
+#       onFailureRetries: 3
+#       onFailureRetryInterval: 10
+#       onSubmissionFailureRetries: 2
+#       onSubmissionFailureRetryInterval: 5
+#
+#     # Monitoring and metrics
+#     monitoring:
+#       exposeDriverMetrics: true
+#       exposeExecutorMetrics: true
+#       prometheus:
+#         jmxExporterJar: /prometheus/jmx_exporter.jar
+#         port: 8090
+#         portName: jmx-exporter
+#
+#     # Batch scheduler configuration
+#     batchScheduler: volcano
+#     batchSchedulerOptions:
+#       queue: high-priority
+#       priorityClassName: high-priority
+#
+#     # Spark UI configuration
+#     sparkUIOptions:
+#       servicePort: 4040
+#       servicePortName: spark-driver-ui-port
+#       serviceType: ClusterIP
+#       serviceAnnotations:
+#         prometheus.io/scrape: "true"
+#       serviceLabels:
+#         monitoring: enabled
+#       ingressAnnotations:
+#         kubernetes.io/ingress.class: nginx
+#
+#     # Driver ingress configuration (for custom ports)
+#     driverIngressOptions:
+#       - servicePort: 8081
+#         servicePortName: custom-port
+#         serviceType: ClusterIP
+#         ingressURLFormat: "http://custom-driver-{{ .Name }}.example.com"
+#
+#     # Dynamic allocation
+#     dynamicAllocation:
+#       enabled: true
+#       initialExecutors: 2
+#       minExecutors: 1
+#       maxExecutors: 10
+#       shuffleTrackingEnabled: true
+#       shuffleTrackingTimeout: 30000
+#
+#     # Time-to-live for completed applications
+#     timeToLiveSeconds: 86400
+#     suspend: false
+#
+#     # Pod scheduling
+#     nodeSelector:
+#       workload-type: spark
+#     tolerations:
+#       - key: workload-type
+#         operator: Equal
+#         value: spark
+#         effect: NoExecute
+#     affinity:
+#       podAffinity:
+#         requiredDuringSchedulingIgnoredDuringExecution:
+#           - labelSelector:
+#               matchExpressions:
+#                 - key: app
+#                   operator: In
+#                   values:
+#                     - spark-driver
+#
+#     # Volumes
+#     volumes:
+#       - name: data
+#         persistentVolumeClaim:
+#           claimName: my-pvc
+#
+#     # Driver configuration
+#     driver:
+#       cores: 2
+#       coreLimit: "2.5"
+#       coreRequest: "1"
+#       memory: "4g"
+#       memoryLimit: "5g"
+#       memoryOverhead: "1g"
+#       javaOptions: "-XX:+UseG1GC -XX:MaxGCPauseMillis=30"
+#       kubernetesMaster: https://kubernetes.default.svc
+#
+#       # Service configuration
+#       serviceAccount: my-service-account
+#       serviceAnnotations:
+#         monitoring: "true"
+#       serviceLabels:
+#         component: driver
+#       ports:
+#         - name: custom
+#           containerPort: 8082
+#           protocol: TCP
+#
+#       # Pod configuration
+#       image: apache/spark:3.3.0
+#       labels:
+#         app: spark-driver
+#       annotations:
+#         log-format: json
+#       priorityClassName: high-priority
+#
+#       # GPU support
+#       gpu:
+#         name: nvidia.com/gpu
+#         quantity: 1
+#
+#       # Environment variables
+#       env:
+#         - name: CUSTOM_ENV
+#           value: "custom_value"
+#       envFrom:
+#         - configMapRef:
+#             name: app-config
+#       configMaps:
+#         - name: my-config
+#           path: /etc/config
+#       secrets:
+#         - name: my-secret
+#           path: /etc/secrets
+#
+#       # Pod security and networking
+#       affinity:
+#         podAntiAffinity:
+#           preferredDuringSchedulingIgnoredDuringExecution:
+#             - weight: 100
+#       tolerations:
+#         - key: taint-key
+#           operator: Equal
+#           value: taint-value
+#       podSecurityContext:
+#         runAsUser: 1000
+#       securityContext:
+#         allowPrivilegeEscalation: false
+#       schedulerName: custom-scheduler
+#       dnsConfig:
+#         nameservers:
+#           - 1.1.1.1
+#       hostNetwork: false
+#       terminationGracePeriodSeconds: 30
+#       hostAliases:
+#         - ip: "127.0.0.1"
+#           hostnames:
+#             - "localhost"
+#       shareProcessNamespace: false
+#
+#       # Pod lifecycle
+#       lifecycle:
+#         preStop:
+#           exec:
+#             command: ["/bin/sh", "-c", "sleep 15"]
+#
+#       # Additional containers
+#       sidecars:
+#         - name: metrics-exporter
+#           image: prom/prometheus:latest
+#       initContainers:
+#         - name: init-config
+#           image: busybox:latest
+#
+#       # PodTemplate for advanced configuration
+#       template:
+#         spec:
+#           terminationGracePeriodSeconds: 60
+#
+#     # Executor configuration
+#     executor:
+#       instances: 3
+#       cores: 2
+#       coreLimit: "2.5"
+#       coreRequest: "1"
+#       memory: "4g"
+#       memoryLimit: "5g"
+#       memoryOverhead: "1g"
+#       javaOptions: "-XX:+UseG1GC"
+#       deleteOnTermination: true
+#
+#       # Pod configuration (similar to driver)
+#       ports:
+#         - name: custom
+#           containerPort: 8082
+#       priorityClassName: high-priority
+#       image: apache/spark:3.3.0
+#       labels:
+#         app: spark-executor
+#       annotations:
+#         monitoring: "true"
+#
+#       # GPU support
+#       gpu:
+#         name: nvidia.com/gpu
+#         quantity: 1
+#
+#       # Environment and config
+#       env:
+#         - name: EXECUTOR_ENV
+#           value: "value"
+#       configMaps:
+#         - name: executor-config
+#           path: /etc/executor
+#       secrets:
+#         - name: executor-secret
+#           path: /etc/executor-secrets
+#
+#       # Pod security
+#       podSecurityContext:
+#         runAsUser: 1000
+#       securityContext:
+#         allowPrivilegeEscalation: false
+#       schedulerName: custom-scheduler
+#       affinity:
+#         podAffinity:
+#           preferredDuringSchedulingIgnoredDuringExecution:
+#             - weight: 100
+#       tolerations:
+#         - key: workload
+#           operator: Equal
+#           value: spark
+#       hostNetwork: false
+#       dnsConfig:
+#         nameservers:
+#           - 1.1.1.1
+#       terminationGracePeriodSeconds: 30
+#       serviceAccount: executor-sa
+#       hostAliases:
+#         - ip: "10.0.0.1"
+#           hostnames:
+#             - "custom-service"
+#       shareProcessNamespace: false
+#
+#       # Pod lifecycle
+#       lifecycle:
+#         preStop:
+#           exec:
+#             command: ["/bin/sh", "-c", "sleep 10"]
+#
+#       sidecars:
+#         - name: log-forwarder
+#           image: fluentd:latest
+#       initContainers:
+#         - name: init-executor
+#           image: busybox:latest
+#
+#     # Volume mounts (shared)
+#     sharedConfigMapRefs: []
+#     sharedSecretRefs: []
+#
+#   # Scheduled SparkApplication example
+#   - name: scheduled-app
+#     type: Python
+#     mode: cluster
+#     mainApplicationFile: s3://my-bucket/scheduled-app.py
+#     schedule: "0 2 * * *"
+#     timeZone: America/New_York
+#     suspend: false
+#     concurrencyPolicy: Forbid
+#     successfulRunHistoryLimit: 5
+#     failedRunHistoryLimit: 3
+#     driver:
+#       cores: 1
+#       memory: "2g"
+#     executor:
+#       instances: 2
+#       cores: 1
+#       memory: "2g"

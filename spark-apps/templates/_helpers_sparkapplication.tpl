@@ -108,6 +108,37 @@ batchScheduler: {{ . }}
 {{- with $app.timeToLiveSeconds }}
 timeToLiveSeconds: {{ . }}
 {{- end }}
+{{- with $app.pythonVersion }}
+pythonVersion: {{ . | quote }}
+{{- end }}
+{{- with $app.proxyUser }}
+proxyUser: {{ . | quote }}
+{{- end }}
+{{- with $app.sparkConfigMap }}
+sparkConfigMap: {{ . | quote }}
+{{- end }}
+{{- with $app.hadoopConfigMap }}
+hadoopConfigMap: {{ . | quote }}
+{{- end }}
+{{- with $app.memoryOverheadFactor }}
+memoryOverheadFactor: {{ . | quote }}
+{{- end }}
+{{- with $app.batchSchedulerOptions }}
+batchSchedulerOptions:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $app.sparkUIOptions }}
+sparkUIOptions:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $app.driverIngressOptions }}
+driverIngressOptions:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with $app.dynamicAllocation }}
+dynamicAllocation:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
 {{- with $app.nodeSelector }}
 nodeSelector:
   {{- toYaml . | nindent 2 }}
@@ -126,13 +157,50 @@ driver:
   coreLimit: {{ . | quote }}
   {{- end }}
   memory: {{ $app.driver.memory | quote }}
+  {{- with $app.driver.coreRequest }}
+  coreRequest: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.memoryLimit }}
+  memoryLimit: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.memoryOverhead }}
+  memoryOverhead: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.javaOptions }}
+  javaOptions: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.kubernetesMaster }}
+  kubernetesMaster: {{ . | quote }}
+  {{- end }}
   serviceAccount: {{ default (include "spark-apps.serviceAccountName" $root) $app.driver.serviceAccount }}
+  {{- with $app.driver.serviceAnnotations }}
+  serviceAnnotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.serviceLabels }}
+  serviceLabels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.ports }}
+  ports:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.priorityClassName }}
+  priorityClassName: {{ . | quote }}
+  {{- end }}
   {{- with $app.driver.labels }}
   labels:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with $app.driver.annotations }}
   annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.image }}
+  image: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.gpu }}
+  gpu:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with $app.driver.env }}
@@ -194,16 +262,105 @@ driver:
     {{- end }}
     {{- end }}
   {{- end }}
+  {{- with $app.driver.configMaps }}
+  configMaps:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.secrets }}
+  secrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.podSecurityContext }}
+  podSecurityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.securityContext }}
+  securityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.schedulerName }}
+  schedulerName: {{ . | quote }}
+  {{- end }}
+  {{- with $app.driver.sidecars }}
+  sidecars:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.initContainers }}
+  initContainers:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.dnsConfig }}
+  dnsConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.terminationGracePeriodSeconds }}
+  terminationGracePeriodSeconds: {{ . }}
+  {{- end }}
+  {{- with $app.driver.hostAliases }}
+  hostAliases:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if hasKey $app.driver "hostNetwork" }}
+  hostNetwork: {{ $app.driver.hostNetwork }}
+  {{- end }}
+  {{- if hasKey $app.driver "shareProcessNamespace" }}
+  shareProcessNamespace: {{ $app.driver.shareProcessNamespace }}
+  {{- end }}
+  {{- with $app.driver.template }}
+  template:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.driver.lifecycle }}
+  lifecycle:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 executor:
   instances: {{ $app.executor.instances }}
   cores: {{ $app.executor.cores }}
   memory: {{ $app.executor.memory | quote }}
+  {{- with $app.executor.coreRequest }}
+  coreRequest: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.memoryLimit }}
+  memoryLimit: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.memoryOverhead }}
+  memoryOverhead: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.javaOptions }}
+  javaOptions: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.deleteOnTermination }}
+  deleteOnTermination: {{ . }}
+  {{- end }}
+  {{- with $app.executor.ports }}
+  ports:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.priorityClassName }}
+  priorityClassName: {{ . | quote }}
+  {{- end }}
   {{- with $app.executor.labels }}
   labels:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with $app.executor.annotations }}
   annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.image }}
+  image: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.gpu }}
+  gpu:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with $app.executor.env }}
@@ -264,5 +421,68 @@ executor:
       readOnly: true
     {{- end }}
     {{- end }}
+  {{- end }}
+  {{- with $app.executor.configMaps }}
+  configMaps:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.secrets }}
+  secrets:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.podSecurityContext }}
+  podSecurityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.securityContext }}
+  securityContext:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.schedulerName }}
+  schedulerName: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.sidecars }}
+  sidecars:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.initContainers }}
+  initContainers:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if hasKey $app.executor "hostNetwork" }}
+  hostNetwork: {{ $app.executor.hostNetwork }}
+  {{- end }}
+  {{- with $app.executor.dnsConfig }}
+  dnsConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.terminationGracePeriodSeconds }}
+  terminationGracePeriodSeconds: {{ . }}
+  {{- end }}
+  {{- with $app.executor.serviceAccount }}
+  serviceAccount: {{ . | quote }}
+  {{- end }}
+  {{- with $app.executor.hostAliases }}
+  hostAliases:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if hasKey $app.executor "shareProcessNamespace" }}
+  shareProcessNamespace: {{ $app.executor.shareProcessNamespace }}
+  {{- end }}
+  {{- with $app.executor.template }}
+  template:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $app.executor.lifecycle }}
+  lifecycle:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end -}}
