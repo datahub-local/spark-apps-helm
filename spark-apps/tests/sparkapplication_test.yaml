@@ -11,7 +11,7 @@ tests:
           value: 4.1.1
       - equal:
           path: spec.image
-          value: "apache/spark:4.1.1"
+          value: "apache/spark:4.1.2"
       - equal:
           path: spec.imagePullPolicy
           value: IfNotPresent
@@ -52,7 +52,7 @@ tests:
           value: 4.1.1
       - equal:
           path: spec.image
-          value: "apache/spark:4.1.1"
+          value: "apache/spark:4.1.2"
       - equal:
           path: spec.driver.serviceAccount
           value: RELEASE-NAME-spark-runtime
@@ -105,7 +105,7 @@ tests:
           value: 4.1.1
       - equal:
           path: spec.template.image
-          value: "apache/spark:4.1.1"
+          value: "apache/spark:4.1.2"
       - contains:
           path: spec.template.imagePullSecrets
           content: regcred
