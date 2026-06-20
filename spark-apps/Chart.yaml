@@ -14,7 +14,7 @@ appVersion: "4.1.2"
 
 dependencies:
   - name: spark-operator
-    version: "2.5.0"
+    version: "2.5.1"
     repository: "https://kubeflow.github.io/spark-operator"
     alias: sparkOperator
     condition: sparkOperator.enabled
