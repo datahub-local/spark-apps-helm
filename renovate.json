@@ -14,24 +14,14 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/)spark-apps/Chart\\.yaml$"
+      "managerFilePatterns": [
+        "/(^|/)spark-apps/Chart\\.yaml$/"
       ],
       "matchStrings": [
         "appVersion: \"(?<currentValue>.*?)\""
       ],
       "depNameTemplate": "apache/spark",
       "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "(^|/)spark-apps/Chart\\.yaml$"
-      ],
-      "matchStrings": [
-        "- name: (?<depName>.*?)\\s+version: \"(?<currentValue>.*?)\""
-      ],
-      "datasourceTemplate": "helm"
     }
   ],
   "includePaths": [
