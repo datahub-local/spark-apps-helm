@@ -8,10 +8,10 @@ tests:
     asserts:
       - equal:
           path: spec.sparkVersion
-          value: 4.1.2
+          value: 4.2.0
       - equal:
           path: spec.image
-          value: "apache/spark:4.1.2"
+          value: "apache/spark:4.2.0"
       - equal:
           path: spec.imagePullPolicy
           value: IfNotPresent
@@ -49,10 +49,10 @@ tests:
     asserts:
       - equal:
           path: spec.sparkVersion
-          value: 4.1.2
+          value: 4.2.0
       - equal:
           path: spec.image
-          value: "apache/spark:4.1.2"
+          value: "apache/spark:4.2.0"
       - equal:
           path: spec.driver.serviceAccount
           value: RELEASE-NAME-spark-runtime
@@ -102,10 +102,10 @@ tests:
           value: 2
       - equal:
           path: spec.template.sparkVersion
-          value: 4.1.2
+          value: 4.2.0
       - equal:
           path: spec.template.image
-          value: "apache/spark:4.1.2"
+          value: "apache/spark:4.2.0"
       - contains:
           path: spec.template.imagePullSecrets
           content: regcred
