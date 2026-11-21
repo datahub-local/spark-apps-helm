@@ -10,7 +10,7 @@ maintainers:
 type: application
 
 version: 0.5.0
-appVersion: "4.2.0"
+appVersion: "4.3.0"
 
 dependencies:
   - name: spark-operator
